@@ -1,0 +1,42 @@
+# ACE-Step Music Generator — Borg (Jetson Orin Nano 8GB)
+# Managed by the GPU Swap Orchestrator at :8090
+#
+# Deploy: scp to borg:/opt/hailstorm/ace-step/ then docker compose up -d
+# First run downloads the model (~7 GB) — takes a while.
+
+services:
+  ace-step:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hailstorm-ace-step
+    restart: always
+    runtime: nvidia
+    ports:
+      - "8006:8006"
+    volumes:
+      # Persistent model cache — survives container rebuilds
+      - /opt/hailstorm/ace-step/checkpoints:/app/checkpoints
+      # Generated audio files
+      - /opt/hailstorm/ace-step/outputs:/app/outputs
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - ACE_CHECKPOINT_DIR=/app/checkpoints
+      - ACE_OUTPUT_DIR=/app/outputs
+      - ACE_PORT=8006
+      - ACE_DTYPE=bfloat16
+      # HuggingFace transfer acceleration
+      - HF_HUB_ENABLE_HF_TRANSFER=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
