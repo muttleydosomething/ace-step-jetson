@@ -1,0 +1,10 @@
+# Backups created during patch iterations
+*.bak
+*.bak-*
+*.bak.*
+
+# Model checkpoints (too large for git; re-downloaded on first run)
+checkpoints/
+
+# Generated audio
+outputs/

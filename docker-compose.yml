@@ -17,6 +17,8 @@ services:
     volumes:
       # Persistent model cache — survives container rebuilds
       - /opt/hailstorm/ace-step/checkpoints:/app/checkpoints
+      # Live-edit entrypoint (survives rebuilds; Patch 14 lazy restore lives here)
+      - /opt/hailstorm/ace-step-v15/jetson_entrypoint.py:/app/jetson_entrypoint.py:ro
       # Generated audio files
       - /opt/hailstorm/ace-step/outputs:/app/outputs
     environment:
